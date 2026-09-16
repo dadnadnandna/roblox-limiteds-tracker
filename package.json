@@ -1,0 +1,9 @@
+{
+  "name": "roblox-limiteds-tracker",
+  "version": "1.0.0",
+  "description": "Roblox high-val limiteds live joiner for Netlify",
+  "main": "index.js",
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}
