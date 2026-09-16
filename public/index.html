@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Limiteds Live Joiner (>200k Val)</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --accent: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 { margin: 0; color: #38bdf8; font-size: 26px; }
+        p { color: var(--text-muted); font-size: 14px; }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .feed-card {
+            background-color: var(--card-bg);
+            padding: 18px 22px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        .player-info h3 { margin: 0 0 6px 0; font-size: 16px; }
+        .player-info p { margin: 0; color: var(--text-muted); font-size: 13px; }
+        .badge {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+        .join-btn {
+            background-color: var(--accent);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background 0.15s ease;
+        }
+        .join-btn:hover {
+            background-color: #059669;
+        }
+        .status-bar {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Roblox Limiteds Live Joiner</h1>
+            <p>Live feed displaying tracked players with &gt;200k val who are online in public joinable servers.</p>
+        </header>
+
+        <div class="status-bar" id="statusBar">Status: Connecting to live feed...</div>
+
+        <div id="feedContainer">
+            <!-- Dynamic items load here -->
+        </div>
+    </div>
+
+    <script>
+        async function fetchLiveFeed() {
+            const statusBar = document.getElementById('statusBar');
+            const feedContainer = document.getElementById('feedContainer');
+
+            try {
+                const response = await fetch('/api/live');
+                const data = await response.json();
+
+                if (data.success) {
+                    statusBar.innerText = `Status: Connected (Last Refreshed: ${new Date().toLocaleTimeString()})`;
+                    
+                    if (data.players.length === 0) {
+                        feedContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted);">No matching online players are currently in-game with public joins right now.</p>`;
+                        return;
+                    }
+
+                    feedContainer.innerHTML = data.players.map(player => `
+                        <div class="feed-card">
+                            <div class="player-info">
+                                <h3>User ID: ${player.userId}</h3>
+                                <p>Place ID: ${player.placeId}</p>
+                                <span class="badge">Value: ${player.value.toLocaleString()} R$</span>
+                            </div>
+                            <div>
+                                <a href="${player.joinLink}" class="join-btn">Join Game</a>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    statusBar.innerText = `Status: Error loading API data`;
+                }
+            } catch (err) {
+                console.error(err);
+                statusBar.innerText = `Status: Connection failed.`;
+            }
+        }
+
+        // Auto-refresh every 12 seconds
+        setInterval(fetchLiveFeed, 12000);
+        fetchLiveFeed();
+    </script>
+</body>
+</html>
